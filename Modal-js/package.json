@@ -1,0 +1,16 @@
+{
+  "name": "modal",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx tailwindcss -i ./assets/css/input.css -o ./assets/css/style.css --watch",
+    "install": "npm install -D tailwindcss"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "tailwindcss": "^3.0.24"
+  }
+}
