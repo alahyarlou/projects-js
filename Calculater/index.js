@@ -1,139 +1,59 @@
-//!  creating an object to help us keep track of these values
-const calculater = {
-    displayValue: '0',
-    firstOperand: null,
-    waitingForSecondOperand: false,
-    operator: null,
-};
+const result = document.getElementById('result'),
+    calc = document.getElementById('calculateText')
 
-updateDisplay()
-
-const keys = document.querySelectorAll('.keys');
-keys.forEach((e) => {
-    e.addEventListener('click', (event) => {
-        // access the click elements
-        const { target } = event
-        const { value } = target
-        // console.log(target.innerText);
-        switch (value) {
-            case '+':
-            case '-':
-            case '*':
-            case '/':
-            case '=':
-                handelOperator(value)
-                break
-            case '.':
-                inputDecimal(value)
-                break
-            case 'all-clear':
-                resultCalculator()
-                break
-            default:
-                if (Number.isInteger(parseFloat(value))) {
-                    inputDigit(value)
-                }
+let value = '0'
+document.querySelectorAll('.keys').forEach((number) => {
+    number.addEventListener('click', (e) => {
+        result.innerText = ''
+        let char = e.target.innerText
+        if (value === '0' && !char.match(/[+*/.-]/gi)) {
+            value = char
+        } else {
+            value += char
         }
-        if (target.classList.contains('operator')) {
-            // console.log(calculater);
-            // console.log('operator', target.innerText);
-            handelOperator(target.innerText)
-            updateDisplay()
-            return;
-        }
-        if (target.classList.contains('decimal')) {
-            // console.log('decimal', target.innerText);
-            inputDecimal(target.innerText)
-            updateDisplay()
-            return;
-        }
-
-        if (target.classList.contains('all-clear')) {
-            // console.log('clear', target.innerText);
-            resultCalculator()
-            updateDisplay()
-            return;
-        }
-        if (target.classList.contains('delete')) {
-            // console.log('delete', target.innerText);
-            return;
-        }
-        // console.log('digit', target.innerText);
-
-        inputDigit(target.innerText)
-        updateDisplay()
-    });
-
+        calc.innerText = value
+    })
 })
-//  update Display function
-function updateDisplay() {
-    // select the element with class
-    const display = document.getElementById('calculateText')
-    // update the value of element
-    display.innerHTML = calculater.displayValue
-}
-
-// input Digit function
-function inputDigit(digit) {
-    const { displayValue, waitingForSecondOperand } = calculater
-    if (waitingForSecondOperand === true) {
-        calculater.displayValue = digit
-        calculater.waitingForSecondOperand = false
+document.querySelector('.all-clear').addEventListener('click', () => {
+    result.innerText = '0'
+    calc.innerText = '0'
+    value = '0'
+})
+document.querySelector('.delete').addEventListener('click', () => {
+    value = value.substring(0, value.length - 1)
+    if (value) {
+        calc.innerText = value;
+        if (!value.match(/[0-9]+[+-\/*]$/gi)) {
+            try {
+                calc.innerText = eval(value);
+            } catch (error) {
+                invalidExpression();
+            }
+        } else {
+            result.innerText = "";
+        }
     } else {
-        // overwrite displayValue
-        calculater.displayValue = displayValue === '0' ? digit : displayValue + digit
+        calc.innerText = "0";
+        result.innerText = "";
     }
-    // console.log(calculater);
-}
+})
+document.getElementById('equl').addEventListener('click', () => {
+    if (!value.match(/[0-9]+[+-\/*][+-\/*]+/gi)) {
+        value = value.substring(0, value.length - 1)
+    }
 
-// input Decimal function
-function inputDecimal(dot) {
-    if (calculater.waitingForSecondOperand === true) {
-        calculater.displayValue = '0'
-        calculater.waitingForSecondOperand = false
-        return
+    if (!value.match(/[0-9]+[+-\/*]$/gi)) {
+        try {
+            result.innerText = eval(value)
+        } catch (err) {
+            invalidExpression()
+        }
     }
-    if (!calculater.displayValue.includes(dot)) {
-        calculater.displayValue += dot
-    }
-}
+})
 
-function handelOperator(nextOperator) {
-    const { firstOperand, displayValue, operator } = calculater
-    // to floating-point number
-    const inputValue = parseFloat(displayValue)
 
-    if (operator && calculater.waitingForSecondOperand) {
-        calculater.operator = nextOperator
-        return
-    }
-    // check is not a `NaN` value
-    if (firstOperand === null && isNaN(inputValue)) {
-        calculater.firstOperand = inputValue
-    } else if (operator) {
-        const result = calculate(firstOperand, inputValue, operator)
-        calculater.displayValue = String(result)
-        calculater.firstOperand = result
-    }
-    calculater.waitingForSecondOperand = true
-    calculater.operator = nextOperator
-}
-
-function calculate(firstOperand, secondOperand, operator) {
-    if (operator === '+') {
-        return firstOperand + secondOperand
-    } else if (operator === '-') {
-        return firstOperand - secondOperand
-    } else if (operator === '*') {
-        return firstOperand * secondOperand
-    } else if (operator === '/') {
-        return firstOperand / secondOperand
-    }
-    return secondOperand
-}
-function resultCalculator() {
-    calculater.displayValue = '0'
-    calculater.firstOperand = null
-    calculater.waitingForSecondOperand = false
-    calculater.operator = null
+function invalidExpression() {
+    calc.innerText = "0";
+    result.innerText = "Invalid Expression";
+    value = "0";
 }
